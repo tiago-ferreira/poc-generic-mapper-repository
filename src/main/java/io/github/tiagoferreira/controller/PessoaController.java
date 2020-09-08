@@ -5,6 +5,8 @@ import io.github.tiagoferreira.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/pessoa")
 public class PessoaController {
@@ -23,7 +25,7 @@ public class PessoaController {
     }
 
     @GetMapping("{id}")
-    public PessoaDTO find(@PathVariable("id") Integer id) {
+    public Optional<PessoaDTO> find(@PathVariable("id") Integer id) {
         return pessoaRepository.findById(id);
     }
 
