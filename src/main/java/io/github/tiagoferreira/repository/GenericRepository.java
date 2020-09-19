@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 public abstract class GenericRepository <ENTITY, DOMAIN, KEY, MAPPER extends GenericMapper<ENTITY, DOMAIN>> {
@@ -73,6 +75,12 @@ public abstract class GenericRepository <ENTITY, DOMAIN, KEY, MAPPER extends Gen
         return (DOMAIN) mapper.toDomain(entity);
     }
 
+    @Transactional
+    public void delete(KEY id) {
+        ENTITY entity = (ENTITY) getEntityManager().find(this.typeOfEntity, id);
+        getEntityManager().remove(entity);
+    }
+
     @Transactional(readOnly = true)
     public Optional<DOMAIN> findById(KEY id) {
         ENTITY entity = getEntityManager().find(this.typeOfEntity, id);
@@ -82,11 +90,25 @@ public abstract class GenericRepository <ENTITY, DOMAIN, KEY, MAPPER extends Gen
         return Optional.<DOMAIN>empty();
     }
 
-    @Transactional
-    public void delete(KEY id) {
-        ENTITY entity = (ENTITY) getEntityManager().find(this.typeOfEntity, id);
-        getEntityManager().remove(entity);
+    @Transactional(readOnly = true)
+    public Optional<DOMAIN> findBCompositeKey(DOMAIN domain) {
+        ENTITY entity = (ENTITY) mapper.toEntity(domain);
+        entity = getEntityManager().find(this.typeOfEntity, entity);
+        if(entity != null) {
+            return (Optional<DOMAIN>) Optional.of(mapper.toDomain(entity));
+        }
+        return Optional.<DOMAIN>empty();
     }
+
+    @Transactional(readOnly = true)
+    public List<DOMAIN> findAll() {
+        List resultList = getEntityManager().createQuery("from " + this.typeOfEntity.getSimpleName() + " e").getResultList();
+        if(resultList != null && !resultList.isEmpty()) {
+            return (List<DOMAIN>) mapper.toDomains(resultList);
+        }
+        return Collections.emptyList();
+    }
+
 
 
     public final Class<DOMAIN> getTypeOfDomain() {

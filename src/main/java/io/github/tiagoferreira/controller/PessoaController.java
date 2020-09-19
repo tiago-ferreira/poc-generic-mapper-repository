@@ -5,6 +5,7 @@ import io.github.tiagoferreira.repository.PessoaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -27,6 +28,11 @@ public class PessoaController {
     @GetMapping("{id}")
     public Optional<PessoaDTO> find(@PathVariable("id") Integer id) {
         return pessoaRepository.findById(id);
+    }
+
+    @GetMapping
+    public List<PessoaDTO> findAll() {
+        return pessoaRepository.findAll();
     }
 
     @DeleteMapping("{id}")
